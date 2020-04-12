@@ -13,11 +13,10 @@ import "./FlightSuretyData-interface.sol";
 /************************************************** */
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
-
+    bool operational = true;
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
-
     FlightSuretyDataInterface public FlightSuretyData;
 
     // Flight status codees
@@ -52,8 +51,7 @@ contract FlightSuretyApp {
      */
     modifier requireIsOperational() {
         // Modify to call data contract's status
-        bool isOperational = FlightSuretyData.isOperational();
-        require(isOperational, "Contract is currently not operational");
+        require(operational, "Contract is currently not operational");
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -100,9 +98,17 @@ contract FlightSuretyApp {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
+    function setOperatingStatus(bool mode) external requireContractOwner {
+        require(
+            mode != operational,
+            "Operational status must be different from existing one"
+        );
+        operational = mode;
+    }
+
     function isOperational() public view returns (bool) {
-        bool operationalContract = FlightSuretyData.isOperational();
-        return operationalContract; // Modify to call data contract's status
+        bool operationalDataContract = FlightSuretyData.isOperational();
+        return operationalDataContract && operational; // Modify to call data contract's status
     }
 
     /********************************************************************************************/
