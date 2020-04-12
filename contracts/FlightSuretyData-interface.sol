@@ -22,4 +22,8 @@ interface FlightSuretyDataInterface {
     function isRegisteredAirlineCandidate(address airlineCandidate)
         external
         returns (bool);
+
+    function isAirlineActive(address airline) external view returns (bool);
+
+    function activateAirline(address airlineAddress) external payable;
 }

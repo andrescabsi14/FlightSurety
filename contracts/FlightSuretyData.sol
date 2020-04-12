@@ -13,8 +13,9 @@ contract FlightSuretyData {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
     mapping(address => uint256) authorizedContracts;
-    mapping(address => bool) airlines;
     mapping(address => uint256) airlinesCandidates;
+    mapping(address => bool) airlines;
+    mapping(address => uint256) activeAirlines;
     uint256 totalAirlines = 0;
 
     /********************************************************************************************/
@@ -32,6 +33,7 @@ contract FlightSuretyData {
     event AirlineAdded(address airline, uint256 totalAirlines);
     event AirlineCandidateAdded(address airline);
     event AirlineCandidateVoted(address airline);
+    event AirlineActivated(address airline);
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -87,6 +89,10 @@ contract FlightSuretyData {
 
     function isRegisteredAirline(address airline) public view returns (bool) {
         return airlines[airline];
+    }
+
+    function isAirlineActive(address airline) public view returns (bool) {
+        return activeAirlines[airline] != 0;
     }
 
     function isRegisteredAirlineCandidate(address airlineCandidate)
@@ -163,6 +169,14 @@ contract FlightSuretyData {
         persistVoteAirlineCandidate(airlineAddress);
     }
 
+    function activateAirline(address airlineAddress)
+        external
+        payable
+        isCallerAuthorized
+    {
+        persistActiveAirline(airlineAddress, msg.value);
+    }
+
     /**
      * @dev Buy insurance for a flight
      *
@@ -234,5 +248,14 @@ contract FlightSuretyData {
         airlinesCandidates[airlineAddress] = airlinesCandidates[airlineAddress]
             .add(1);
         emit AirlineCandidateVoted(airlineAddress);
+    }
+
+    function persistActiveAirline(address airlineAddress, uint256 value)
+        internal
+        isCallerAuthorized
+        requireIsOperational
+    {
+        activeAirlines[airlineAddress] = value;
+        emit AirlineActivated(airlineAddress);
     }
 }
