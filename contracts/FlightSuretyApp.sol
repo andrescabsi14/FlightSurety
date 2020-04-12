@@ -19,7 +19,9 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     FlightSuretyDataInterface public FlightSuretyData;
 
-    // Flight status codees
+    uint256 MIN_ACTIVATE_FUNDS = 10 ether;
+
+    // Flight status codes
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
     uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
@@ -81,6 +83,29 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireMemberAirlineActive() {
+        bool isMemberAirlineActive = FlightSuretyData.isAirlineActive(
+            msg.sender
+        );
+        require(
+            isMemberAirlineActive,
+            "Your need to be an active member airline to perform this task"
+        );
+        _;
+    }
+
+    modifier requireActivateMinimumFunds() {
+        bool areFundsEnough = msg.value >= MIN_ACTIVATE_FUNDS;
+        require(areFundsEnough, "Insufficient funds.");
+        _;
+    }
+
+    modifier requireEOATx() {
+        bool isExternallyOwnedAccount = tx.origin == msg.sender;
+        require(isExternallyOwnedAccount, "Contracts not allowed.");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -92,11 +117,16 @@ contract FlightSuretyApp {
     constructor() public {
         contractOwner = msg.sender;
         FlightSuretyData.registerAirline(msg.sender);
+        FlightSuretyData.activateAirline(msg.sender);
     }
 
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    function getMinimumActivateFunds() public view returns (uint256) {
+        return MIN_ACTIVATE_FUNDS;
+    }
 
     function setOperatingStatus(bool mode) external requireContractOwner {
         require(
@@ -124,6 +154,7 @@ contract FlightSuretyApp {
         public
         requireIsOperational
         requireMemberAirline
+        requireMemberAirlineActive
         requireAirlinesAutorization
     {
         require(
@@ -141,6 +172,7 @@ contract FlightSuretyApp {
         public
         requireIsOperational
         requireMemberAirline
+        requireMemberAirlineActive
         requireAirlinesAutorization
     {
         require(
@@ -170,6 +202,7 @@ contract FlightSuretyApp {
     function registerAirline(address airlineCandidate)
         external
         requireIsOperational
+        requireMemberAirlineActive
         requireMemberAirline
     {
         require(
@@ -184,6 +217,17 @@ contract FlightSuretyApp {
         } else {
             addAirlineCandidate(airlineCandidate);
         }
+    }
+
+    function activateAirline(address airline)
+        public
+        payable
+        requireIsOperational
+        requireMemberAirline
+        requireEOATx
+        requireActivateMinimumFunds
+    {
+        FlightSuretyData.activateAirline(airline);
     }
 
     /**
