@@ -28,6 +28,8 @@ contract FlightSuretyData {
      */
     constructor() public {
         contractOwner = msg.sender;
+        airlines[msg.sender] = true;
+        activeAirlines[msg.sender] = 10;
     }
 
     event AirlineAdded(address airline, uint256 totalAirlines);

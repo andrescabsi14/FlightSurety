@@ -11,6 +11,11 @@ contract("Flight Surety Tests", async (accounts) => {
     );
   });
 
+  const firstAirline = {
+    from: config.firstAirline,
+    value: web3.toWei(10, "ether"),
+  };
+
   /****************************************************************************************/
   /* Operations and Settings                                                              */
   /****************************************************************************************/
@@ -70,10 +75,10 @@ contract("Flight Surety Tests", async (accounts) => {
 
     // ACT
     try {
-      await config.flightSuretyApp.registerAirline(newAirline, {
-        from: config.firstAirline,
-      });
-    } catch (e) {}
+      await config.flightSuretyApp.registerAirline(newAirline, firstAirline);
+    } catch (e) {
+      console.log(e);
+    }
     let result = await config.flightSuretyData.isAirline.call(newAirline);
 
     // ASSERT
