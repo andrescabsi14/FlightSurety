@@ -134,9 +134,8 @@ contract FlightSuretyApp {
         operational = mode;
     }
 
-    function isOperational() public view returns (bool) {
-        bool operationalDataContract = FlightSuretyData.isOperational();
-        return operationalDataContract && operational; // Modify to call data contract's status
+    function isOperational() public view requireContractOwner returns (bool) {
+        return operational;
     }
 
     /********************************************************************************************/
