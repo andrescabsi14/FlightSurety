@@ -128,6 +128,10 @@ contract FlightSuretyData {
      */
 
     function setOperatingStatus(bool mode) external requireContractOwner {
+        require(
+            mode != operational,
+            "Operational status must be different from existing one"
+        );
         operational = mode;
     }
 
