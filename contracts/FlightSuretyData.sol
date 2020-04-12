@@ -13,6 +13,8 @@ contract FlightSuretyData {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
     mapping(address => uint256) authorizedContracts;
+    mapping(address => bool) airlines;
+    uint256 totalAirlines = 0;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -25,6 +27,8 @@ contract FlightSuretyData {
     constructor() public {
         contractOwner = msg.sender;
     }
+
+    event AirlineAdded(address airline, uint256 totalAirlines);
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -59,6 +63,15 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    function getAirlinesRegistered()
+        public
+        view
+        isCallerAuthorized
+        returns (uint256)
+    {
+        return totalAirlines;
+    }
 
     function authorizeCaller(address dataContract)
         external
@@ -104,7 +117,9 @@ contract FlightSuretyData {
      *
      */
 
-    function registerAirline() external pure {}
+    function registerAirline(address airline) external isCallerAuthorized {
+        persistAirline(airline);
+    }
 
     /**
      * @dev Buy insurance for a flight
@@ -146,5 +161,17 @@ contract FlightSuretyData {
      */
     function() external payable {
         fund();
+    }
+
+    // Internal functions
+
+    function persistAirline(address airlineAddress)
+        internal
+        isCallerAuthorized
+        requireIsOperational
+    {
+        airlines[airlineAddress] = true;
+        totalAirlines = totalAirlines.add(1);
+        emit AirlineAdded(airlineAddress, totalAirlines);
     }
 }

@@ -65,6 +65,15 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireAirlinesAutorization() {
+        uint256 airlinesRegistered = FlightSuretyData.getAirlinesRegistered();
+        require(
+            airlinesRegistered <= 4,
+            "Your registration application will be voted by our registered airlines."
+        );
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -81,8 +90,9 @@ contract FlightSuretyApp {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function isOperational() public pure returns (bool) {
-        return true; // Modify to call data contract's status
+    function isOperational() public view returns (bool) {
+        bool operationalContract = FlightSuretyData.isOperational();
+        return operationalContract; // Modify to call data contract's status
     }
 
     /********************************************************************************************/
@@ -96,10 +106,11 @@ contract FlightSuretyApp {
 
     function registerAirline()
         external
-        pure
+        requireIsOperational
+        requireAirlinesAutorization
         returns (bool success, uint256 votes)
     {
-        return (success, 0);
+        FlightSuretyData.registerAirline(msg.sender);
     }
 
     /**
