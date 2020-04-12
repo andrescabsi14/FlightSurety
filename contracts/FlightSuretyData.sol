@@ -50,7 +50,7 @@ contract FlightSuretyData {
      *      the event there is an issue that needs to be fixed
      */
     modifier requireIsOperational() {
-        require(operational, "Contract is currently not operational");
+        require(operational, "Data Contract is currently not operational");
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -74,6 +74,7 @@ contract FlightSuretyData {
     function getAirlinesRegistered()
         public
         view
+        requireIsOperational
         isCallerAuthorized
         returns (uint256)
     {
@@ -83,23 +84,35 @@ contract FlightSuretyData {
     function getAirlineCandidateVotes(address airlineCandidate)
         public
         view
+        requireIsOperational
         isCallerAuthorized
         returns (uint256)
     {
         return airlinesCandidates[airlineCandidate];
     }
 
-    function isRegisteredAirline(address airline) public view returns (bool) {
+    function isRegisteredAirline(address airline)
+        public
+        view
+        requireIsOperational
+        returns (bool)
+    {
         return airlines[airline];
     }
 
-    function isAirlineActive(address airline) public view returns (bool) {
+    function isAirlineActive(address airline)
+        public
+        view
+        requireIsOperational
+        returns (bool)
+    {
         return activeAirlines[airline] != 0;
     }
 
     function isRegisteredAirlineCandidate(address airlineCandidate)
         public
         view
+        requireIsOperational
         returns (bool)
     {
         return airlinesCandidates[airlineCandidate] >= 0;
@@ -107,6 +120,7 @@ contract FlightSuretyData {
 
     function authorizeCaller(address dataContract)
         external
+        requireIsOperational
         requireContractOwner
     {
         authorizedContracts[dataContract] = 1;
@@ -114,6 +128,7 @@ contract FlightSuretyData {
 
     function deauthorizeCaller(address dataContract)
         external
+        requireIsOperational
         requireContractOwner
     {
         delete authorizedContracts[dataContract];
@@ -153,12 +168,17 @@ contract FlightSuretyData {
      *
      */
 
-    function registerAirline(address airline) external isCallerAuthorized {
+    function registerAirline(address airline)
+        external
+        requireIsOperational
+        isCallerAuthorized
+    {
         persistAirline(airline);
     }
 
     function registerAirlineCandidate(address airlineCandidate)
         external
+        requireIsOperational
         isCallerAuthorized
     {
         persistAirlineCandidate(airlineCandidate);
@@ -166,6 +186,7 @@ contract FlightSuretyData {
 
     function voteAirlineCandidate(address airlineAddress)
         external
+        requireIsOperational
         isCallerAuthorized
     {
         persistVoteAirlineCandidate(airlineAddress);
@@ -174,6 +195,7 @@ contract FlightSuretyData {
     function activateAirline(address airlineAddress)
         external
         payable
+        requireIsOperational
         isCallerAuthorized
     {
         persistActiveAirline(airlineAddress, msg.value);
@@ -225,8 +247,8 @@ contract FlightSuretyData {
 
     function persistAirline(address airlineAddress)
         internal
-        isCallerAuthorized
         requireIsOperational
+        isCallerAuthorized
     {
         airlines[airlineAddress] = true;
         totalAirlines = totalAirlines.add(1);
@@ -235,8 +257,8 @@ contract FlightSuretyData {
 
     function persistAirlineCandidate(address airlineAddress)
         internal
-        isCallerAuthorized
         requireIsOperational
+        isCallerAuthorized
     {
         airlinesCandidates[airlineAddress] = 0;
         emit AirlineCandidateAdded(airlineAddress);
@@ -244,8 +266,8 @@ contract FlightSuretyData {
 
     function persistVoteAirlineCandidate(address airlineAddress)
         internal
-        isCallerAuthorized
         requireIsOperational
+        isCallerAuthorized
     {
         airlinesCandidates[airlineAddress] = airlinesCandidates[airlineAddress]
             .add(1);
@@ -254,8 +276,8 @@ contract FlightSuretyData {
 
     function persistActiveAirline(address airlineAddress, uint256 value)
         internal
-        isCallerAuthorized
         requireIsOperational
+        isCallerAuthorized
     {
         activeAirlines[airlineAddress] = value;
         emit AirlineActivated(airlineAddress);
