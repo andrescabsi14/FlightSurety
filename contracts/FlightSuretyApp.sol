@@ -93,6 +93,7 @@ contract FlightSuretyApp {
      */
     constructor() public {
         contractOwner = msg.sender;
+        FlightSuretyData.registerAirline(msg.sender);
     }
 
     /********************************************************************************************/
@@ -151,6 +152,8 @@ contract FlightSuretyApp {
             airlineAddress
         );
         uint256 totalAirlines = FlightSuretyData.getAirlinesRegistered();
+
+        // Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
         bool approvalReached = candidateVotes > totalAirlines.div(2);
 
         if (approvalReached) {
