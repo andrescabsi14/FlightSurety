@@ -68,8 +68,17 @@ contract FlightSuretyApp {
     modifier requireAirlinesAutorization() {
         uint256 airlinesRegistered = FlightSuretyData.getAirlinesRegistered();
         require(
-            airlinesRegistered <= 4,
+            airlinesRegistered > 4,
             "Your registration application will be voted by our registered airlines."
+        );
+        _;
+    }
+
+    modifier requireMemberAirline() {
+        bool isMemberAirline = FlightSuretyData.isRegisteredAirline(msg.sender);
+        require(
+            isMemberAirline,
+            "Your need to be a member airline to perform this task"
         );
         _;
     }
@@ -104,13 +113,68 @@ contract FlightSuretyApp {
      *
      */
 
-    function registerAirline()
+    function addAirlineCandidate(address airlineCandidate)
+        public
+        requireIsOperational
+        requireMemberAirline
+        requireAirlinesAutorization
+    {
+        require(
+            !FlightSuretyData.isRegisteredAirline(airlineCandidate),
+            "This Airline Candidate is an already registered Airline"
+        );
+        require(
+            !FlightSuretyData.isRegisteredAirlineCandidate(airlineCandidate),
+            "This Airline is already registered as Airline Candidate"
+        );
+        FlightSuretyData.registerAirlineCandidate(msg.sender);
+    }
+
+    function voteAirlineCandidate(address airlineAddress)
+        public
+        requireIsOperational
+        requireMemberAirline
+        requireAirlinesAutorization
+    {
+        require(
+            !FlightSuretyData.isRegisteredAirlineCandidate(airlineAddress),
+            "This Airline is already registered as Airline Candidate"
+        );
+        require(
+            FlightSuretyData.isRegisteredAirlineCandidate(airlineAddress),
+            "This Airline is already registered as Airline Candidate"
+        );
+
+        FlightSuretyData.voteAirlineCandidate(airlineAddress);
+
+        uint256 candidateVotes = FlightSuretyData.getAirlineCandidateVotes(
+            airlineAddress
+        );
+        uint256 totalAirlines = FlightSuretyData.getAirlinesRegistered();
+        bool approvalReached = candidateVotes > totalAirlines.div(2);
+
+        if (approvalReached) {
+            FlightSuretyData.registerAirline(airlineAddress);
+        }
+    }
+
+    function registerAirline(address airlineCandidate)
         external
         requireIsOperational
-        requireAirlinesAutorization
-        returns (bool success, uint256 votes)
+        requireMemberAirline
     {
-        FlightSuretyData.registerAirline(msg.sender);
+        require(
+            !FlightSuretyData.isRegisteredAirline(airlineCandidate),
+            "This Airline is already registered"
+        );
+
+        uint256 airlinesRegistered = FlightSuretyData.getAirlinesRegistered();
+
+        if (airlinesRegistered <= 4) {
+            FlightSuretyData.registerAirline(airlineCandidate);
+        } else {
+            addAirlineCandidate(airlineCandidate);
+        }
     }
 
     /**
