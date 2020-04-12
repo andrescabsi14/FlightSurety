@@ -1,19 +1,22 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
-var mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+var mnemonic =
+  "trim nephew effort cruise tobacco recall release twist angle child board praise";
+//   const infuraProjectId = process.env.INFURA_PROJECT_ID;
+// const mnemonic = process.env.WALLET_MNEMONIC;
 
 module.exports = {
   networks: {
     development: {
-      provider: function() {
-        return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/", 0, 50);
+      provider: function () {
+        return new HDWalletProvider(mnemonic, "http://127.0.0.1:7545/", 0, 50);
       },
-      network_id: '*',
-      gas: 9999999
-    }
+      network_id: "*",
+      gas: 9999999,
+    },
   },
   compilers: {
     solc: {
-      version: "^0.4.24"
-    }
-  }
+      version: "^0.4.24",
+    },
+  },
 };
