@@ -13,6 +13,9 @@ contract FlightSuretyData {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
     mapping(address => uint256) authorizedContracts;
+    mapping(address => bool) airlines;
+    mapping(address => uint256) airlinesCandidates;
+    uint256 totalAirlines = 0;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -25,6 +28,10 @@ contract FlightSuretyData {
     constructor() public {
         contractOwner = msg.sender;
     }
+
+    event AirlineAdded(address airline, uint256 totalAirlines);
+    event AirlineCandidateAdded(address airline);
+    event AirlineCandidateVoted(address airline);
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -59,6 +66,36 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    function getAirlinesRegistered()
+        public
+        view
+        isCallerAuthorized
+        returns (uint256)
+    {
+        return totalAirlines;
+    }
+
+    function getAirlineCandidateVotes(address airlineCandidate)
+        public
+        view
+        isCallerAuthorized
+        returns (uint256)
+    {
+        return airlinesCandidates[airlineCandidate];
+    }
+
+    function isRegisteredAirline(address airline) public view returns (bool) {
+        return airlines[airline];
+    }
+
+    function isRegisteredAirlineCandidate(address airlineCandidate)
+        public
+        view
+        returns (bool)
+    {
+        return airlinesCandidates[airlineCandidate] >= 0;
+    }
 
     function authorizeCaller(address dataContract)
         external
@@ -104,7 +141,23 @@ contract FlightSuretyData {
      *
      */
 
-    function registerAirline() external pure {}
+    function registerAirline(address airline) external isCallerAuthorized {
+        persistAirline(airline);
+    }
+
+    function registerAirlineCandidate(address airlineCandidate)
+        external
+        isCallerAuthorized
+    {
+        persistAirlineCandidate(airlineCandidate);
+    }
+
+    function voteAirlineCandidate(address airlineAddress)
+        external
+        isCallerAuthorized
+    {
+        persistVoteAirlineCandidate(airlineAddress);
+    }
 
     /**
      * @dev Buy insurance for a flight
@@ -146,5 +199,36 @@ contract FlightSuretyData {
      */
     function() external payable {
         fund();
+    }
+
+    // Internal functions
+
+    function persistAirline(address airlineAddress)
+        internal
+        isCallerAuthorized
+        requireIsOperational
+    {
+        airlines[airlineAddress] = true;
+        totalAirlines = totalAirlines.add(1);
+        emit AirlineAdded(airlineAddress, totalAirlines);
+    }
+
+    function persistAirlineCandidate(address airlineAddress)
+        internal
+        isCallerAuthorized
+        requireIsOperational
+    {
+        airlinesCandidates[airlineAddress] = 0;
+        emit AirlineCandidateAdded(airlineAddress);
+    }
+
+    function persistVoteAirlineCandidate(address airlineAddress)
+        internal
+        isCallerAuthorized
+        requireIsOperational
+    {
+        airlinesCandidates[airlineAddress] = airlinesCandidates[airlineAddress]
+            .add(1);
+        emit AirlineCandidateVoted(airlineAddress);
     }
 }
