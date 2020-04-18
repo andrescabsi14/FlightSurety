@@ -1,0 +1,27 @@
+$backgroundFirst: #ececec;
+$backgroundSecond: #180e06;
+$TextColor: #333333;
+
+$accentColor: #063385;
+$secondaryAccent: #fdcd2f;
+$accentFont: darken($accentColor, 60%);
+
+$formColor: #eeeeee;
+$formBgColor: #ffffff;
+
+$sectionPadding: 20px 30px;
+
+$buttonBg: $secondaryAccent;
+$buttonFont: $accentFont;
+$buttonBorder: transparent;
+
+$buttonBgHover: #2e1c13;
+$buttonFontHover: #ffffff;
+$buttonBorderHover: #192533;
+
+$gridWidthEl: 1 0 35%;
+
+$TableHeaderBg: #f9d162;
+$TableHeaderRowsBg: #fbe39c;
+$TableHeaderRowsHoverBg: #333333;
+$TableHeaderDivision: #fbe39c;

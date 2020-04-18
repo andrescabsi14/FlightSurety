@@ -1,0 +1,11 @@
+@import "./theme.scss";
+
+.Context-selector {
+  display: flex;
+  width: 100%;
+
+  .CardOption-wrapper {
+    background: $accentColor;
+    color: $accentFont;
+  }
+}
