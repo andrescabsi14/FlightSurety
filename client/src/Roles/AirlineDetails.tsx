@@ -1,22 +1,17 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
+import axios from "axios";
 // import Web3 from "web3";
 import "./TravelerDetails.scss";
 import Table from "../components/Table";
 
-enum MembershipStatus {
-  active = "Active",
-  none = "",
-}
-
 class AirlineDetails extends React.Component<{
   web3: any;
   accounts: any;
-  supplyContract: any;
+  appContract: any;
   userContext: any;
   txHistory: any;
   metamaskAddress: any;
-  upc: any;
   setError: any;
   setNotification: any;
 }> {
@@ -29,50 +24,8 @@ class AirlineDetails extends React.Component<{
     originFarmLongitude: "",
     error: null,
     loading: false,
-    flightColumns: ["Name", "Code", "Membership"],
-    flights: [
-      {
-        code: "AV",
-        name: "Avianca",
-        membership: MembershipStatus.active,
-      },
-      {
-        code: "UA65",
-        name: "United Airlines",
-        membership: MembershipStatus.active,
-      },
-      {
-        code: "LH34",
-        name: "Lufthansa",
-        membership: MembershipStatus.active,
-      },
-      {
-        code: "CAD253",
-        name: "Air Canada",
-        membership: MembershipStatus.none,
-      },
-      {
-        code: "AA3680",
-        name: "American Airlines",
-        membership: MembershipStatus.none,
-      },
-      {
-        code: "AA695",
-        name: "United Airlines",
-        membership: MembershipStatus.none,
-      },
-      {
-        code: "BA6750",
-        name: "British Airways",
-        membership: MembershipStatus.none,
-      },
-    ],
-  };
-
-  handleChange = (fieldId: any, value: any) => {
-    this.setState({
-      [fieldId]: value,
-    });
+    airlinesColumns: [],
+    airlines: [],
   };
 
   setLocalError = (error: any) => {
@@ -82,10 +35,51 @@ class AirlineDetails extends React.Component<{
     });
   };
 
-  async componentDidMount() {}
+  isActiveAirline = async () => {
+    const { appContract, accounts } = this.props;
+
+    if (!appContract) return;
+    try {
+      const OWNER = accounts[0];
+      const result = await appContract.isOperational().call({ from: OWNER });
+
+      console.log(result);
+      // this.setState({
+      //   txHistory: result,
+      // });
+    } catch (err) {
+      this.setLocalError(err);
+      console.error("Error isOperational");
+    }
+  };
+
+  fetchAirlines = async () => {
+    try {
+      const { data } = await axios.get(`/airlines`);
+
+      if (data) {
+        // const formattedData = data.airlines.map(airline => {
+
+        // })
+        await this.isActiveAirline();
+        this.setState({
+          airlines: data.airlines,
+          airlinesColumns: data.airlineColumns,
+          error: null,
+        });
+      }
+    } catch (error) {
+      this.setLocalError(error);
+    }
+  };
+
+  componentDidMount() {
+    this.fetchAirlines();
+  }
 
   render() {
-    const { flightColumns, flights, isFarmer } = this.state;
+    const { airlinesColumns, airlines, isFarmer } = this.state;
+
     return (
       <section
         className={
@@ -96,8 +90,8 @@ class AirlineDetails extends React.Component<{
           <Typography variant="h4">Member Airlines</Typography>
 
           <Table
-            cols={flightColumns}
-            data={flights}
+            cols={airlinesColumns}
+            data={airlines}
             actionTitle={"Buy Insurance"}
             onClickHandler={(id: any) => console.log(id)}
           />

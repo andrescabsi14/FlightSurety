@@ -9,6 +9,7 @@ import getWeb3 from "./getWeb3";
 
 import { AppContext } from "./App.types";
 import "./App.scss";
+import OperationalStatus from "./components/OperationalStatus";
 
 const TARGET_URL = Config.localhost.url;
 
@@ -36,47 +37,15 @@ class App extends React.Component {
   state = {
     web3: null,
     account: null,
-    supplyContract: {},
+    appContract: {},
     userContext: "",
     txHistory: "",
     metamaskAddress: "",
     upc: "1",
     loading: true,
     notification: false,
-    accounts: null,
+    accounts: [],
     error: null,
-  };
-
-  fetchItemBufferOne = async () => {
-    // const { upc, supplyContract } = this.state;
-    // const targetMethods = supplyContract && supplyContract.methods;
-    // if (!upc) return;
-    // try {
-    //   const result = await targetMethods.fetchItemBufferOne(upc).call();
-    //   console.log(result);
-    //   this.setState({
-    //     txHistory: result,
-    //   });
-    // } catch (err) {
-    //   console.error("Error fetchItemBufferOne");
-    // }
-  };
-
-  fetchItemBufferTwo = async () => {
-    const { upc, supplyContract } = this.state;
-    if (!upc) return;
-
-    // try {
-    //   const result = await supplyContract.methods
-    //     .fetchItemBufferTwo(upc)
-    //     .call();
-    //   console.log(result);
-    //   this.setState({
-    //     txHistory: result,
-    //   });
-    // } catch (err) {
-    //   console.error("Error fetchItemBufferTwo");
-    // }
   };
 
   goBack = () => {
@@ -125,19 +94,12 @@ class App extends React.Component {
 
       const accounts = await web3.eth.getAccounts(); // Get account address
 
-      this.setState(
-        {
-          web3,
-          accounts,
-          appContract: appContractInstance,
-          loading: false,
-        },
-        () => {
-          // Fetch item
-          this.fetchItemBufferOne();
-          this.fetchItemBufferTwo();
-        }
-      );
+      this.setState({
+        web3,
+        accounts,
+        appContract: appContractInstance,
+        loading: false,
+      });
     } catch (err) {
       this.setError(err);
       console.error("Error starting app");
@@ -166,7 +128,7 @@ class App extends React.Component {
     const {
       web3,
       accounts,
-      supplyContract,
+      appContract,
       metamaskAddress,
       upc,
       userContext,
@@ -198,14 +160,12 @@ class App extends React.Component {
               </div>
             )}
 
-            <div className="EthApp-status">
-              status{" "}
-              <span
-                className={`EthApp-status-indicator ${
-                  appIsActive ? "active" : ""
-                }`}
-              ></span>
-            </div>
+            {appContract && accounts && accounts[0] && (
+              <OperationalStatus
+                appContract={appContract}
+                owner={accounts[0]}
+              />
+            )}
 
             {!userContext && (
               <div className="Context-selector">
@@ -257,11 +217,11 @@ class App extends React.Component {
             }
           >
             <div className="Roles-Functionality-wrapper">
-              {userContext && !error && (
+              {userContext && !error && appContract && (
                 <ContextSelector
                   web3={web3}
                   accounts={accounts}
-                  supplyContract={supplyContract}
+                  appContract={appContract}
                   userContext={userContext}
                   txHistory={txHistory}
                   metamaskAddress={metamaskAddress}

@@ -1,3 +1,5 @@
+const flightsData = require("./dummyData/flights");
+const airlinesData = require("./dummyData/airlines");
 const FlightSuretyApp = require("./build/contracts/FlightSuretyApp.json");
 const Config = require("./config.json");
 const Web3 = require("web3");
@@ -32,6 +34,14 @@ app.get("/api", (req, res) => {
 
 app.get("/app", (req, res) => {
   res.send(FlightSuretyApp);
+});
+
+app.get("/airlines", (req, res) => {
+  res.json(airlinesData);
+});
+
+app.get("/flights", (req, res) => {
+  res.json(flightsData);
 });
 
 app.use(express.static("build"));
