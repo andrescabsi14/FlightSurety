@@ -1,0 +1,159 @@
+@import "../theme.scss";
+
+.Table-wrapper {
+  margin: 30px 0;
+  border: solid 1px $TableHeaderBg;
+
+  .Table-header {
+    display: flex;
+    width: 100%;
+    background: $TableHeaderBg;
+
+    .Table-header-col {
+      flex: 1;
+      padding: 20px 15px;
+      border-right: solid 1px $TableHeaderDivision;
+      font-weight: 500;
+      font-size: 18px;
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+
+  .Table-rows {
+    .Table-row-container {
+      display: flex;
+      background: $TableHeaderRowsBg;
+      border-bottom: solid 1px lighten($TableHeaderRowsBg, 5%);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+
+      &:hover {
+        background: $TableHeaderRowsHoverBg;
+        color: #ffffff;
+
+        .Table-row.buy {
+          right: 0;
+          opacity: 1;
+          width: 100%;
+          background: rgba(51, 51, 51, 0.7);
+          text-align: right;
+          font-weight: 500;
+        }
+      }
+
+      .Table-row {
+        flex: 1;
+        padding: 10px 15px;
+
+        &.buy {
+          position: absolute;
+          right: -100%;
+          top: 0;
+          opacity: 0;
+        }
+      }
+    }
+  }
+}
+
+.FarmDetail {
+  &-wrapper {
+    display: flex;
+    width: 100%;
+    margin-bottom: 30px;
+    flex: $gridWidthEl;
+
+    &.extended {
+      flex: 1 0 100%;
+    }
+  }
+
+  &-farmDetails {
+    display: flex;
+    flex-direction: column;
+    background: $formBgColor;
+    border: solid 1px $formColor;
+    color: $accentFont;
+    padding: $sectionPadding;
+  }
+
+  &-newfarmer {
+    display: flex;
+    flex-direction: column;
+    background: $formBgColor;
+    border: solid 1px $formColor;
+    color: $accentFont;
+    padding: $sectionPadding;
+    flex: 1;
+
+    .Payout-wrapper {
+      .Table-wrapper {
+        border: solid 1px #e4e4e4;
+        .Table-header {
+          background: #073384;
+          color: #fefefe;
+        }
+      }
+      .Table-rows {
+        .Table-row-container {
+          background: #ffffff;
+          border-bottom: solid 1px #e4e4e4;
+          border-top: solid 1px #e4e4e4;
+          border-bottom: solid 1px #e4e4e4;
+
+          &:hover {
+            background: #0042bd;
+            color: #ffffff;
+            border-top: solid 1px #a4a4a4;
+            border-bottom: solid 1px #a4a4a4;
+          }
+        }
+      }
+    }
+  }
+
+  &-formWrapper {
+    display: flex;
+    flex-direction: column;
+    color: $formColor;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    &.inline {
+      flex-direction: row;
+    }
+
+    label,
+    input,
+    textarea {
+      color: $formColor;
+    }
+
+    .FarmDetails-Input {
+      margin-bottom: 10px;
+    }
+  }
+
+  &-Input {
+    margin-bottom: 10px;
+  }
+
+  &-loading {
+    margin-top: 20px;
+    color: #4caf50;
+    font-weight: 600;
+  }
+
+  &-Error {
+    color: red;
+  }
+}

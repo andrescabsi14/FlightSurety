@@ -1,0 +1,51 @@
+@import "../theme.scss";
+
+.DistributorDetails {
+  &-wrapper {
+    display: flex;
+    width: 100%;
+    margin-bottom: 30px;
+    flex: $gridWidthEl;
+  }
+
+  &-newDistributor {
+    display: flex;
+    flex-direction: column;
+    background: $formBgColor;
+    border: solid 1px $formColor;
+    color: $accentFont;
+    padding: $sectionPadding;
+    flex: $gridWidthEl;
+    margin: 0 30px 0px 0;
+
+    &.extended {
+      flex: 1 0 100%;
+    }
+  }
+
+  &-formWrapper {
+    display: flex;
+    flex-direction: column;
+    color: $formColor;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    &.inline {
+      flex-direction: row;
+    }
+
+    label,
+    input,
+    textarea {
+      color: $formColor;
+    }
+
+    .DistributorDetails-Input {
+      margin-bottom: 10px;
+    }
+  }
+
+  &-Input {
+    margin-bottom: 10px;
+  }
+}

@@ -1,0 +1,56 @@
+@import "./theme.scss";
+
+.TxHistory {
+  &-wrapper {
+    width: 100%;
+    min-height: 310px;
+    display: flex;
+    flex-direction: column;
+    background: $formBgColor;
+    border: solid 1px $formColor;
+    color: $accentFont;
+    margin: 0 30px 30px 0;
+    padding: $sectionPadding;
+    flex: 1;
+  }
+
+  &-Input {
+    margin-bottom: 10px;
+    display: flex;
+    font-size: 14px;
+
+    .label {
+      font-weight: 800;
+      margin-right: 5px;
+      font-size: 16px;
+    }
+
+    .value {
+      font-size: 16px;
+    }
+  }
+
+  &-formWrapper {
+    display: flex;
+    flex-direction: column;
+    color: $formColor;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    &.inline {
+      flex-direction: row;
+    }
+
+    label,
+    input,
+    textarea {
+      color: $formColor;
+    }
+
+    .FarmDetails-Input {
+      margin-bottom: 7px;
+      display: flex;
+      width: 100%;
+    }
+  }
+}

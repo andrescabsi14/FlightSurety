@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css?family=Assistant:200,400,700&display=swap");
+@import "./theme.scss";
+
+body {
+  font-family: "Assistant", sans-serif;
+  background: $backgroundFirst;
+  color: #ffffff;
+  height: 100%;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23ffffff' fill-opacity='0.76' fill-rule='evenodd'/%3E%3C/svg%3E");
+
+  // padding: 30px;
+
+  > div#root {
+    height: 100%;
+    min-height: 100vh;
+
+    > div.App {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+
+      header.App-header {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        font-size: 60px;
+        font-weight: 700;
+        letter-spacing: 0px;
+        color: $accentColor;
+        margin: 30px auto 30px auto;
+        text-align: center;
+      }
+
+      .ethApp-main-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        max-width: 70vw;
+        margin: 0 auto;
+
+        &.flatten {
+          flex: none;
+        }
+
+        .Context-selector {
+          display: flex;
+          width: 100%;
+          flex-wrap: wrap;
+
+          > .CoffeeCol-subtitle {
+            font-size: 20px;
+            margin-bottom: 20px;
+            margin-top: 40px;
+          }
+
+          .Context-selection {
+            width: 100%;
+            display: flex;
+
+            .CardOption-wrapper {
+              flex: 1;
+              margin: 0 40px 20px 0;
+              border: solid 1px #ffffff;
+              max-width: none;
+              color: #fefefe;
+
+              &:last-child {
+                margin: 0 0px 20px 40px;
+              }
+
+              .Card-image {
+                width: 100%;
+                height: 300px;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                img {
+                  width: 100%;
+                  height: auto;
+                }
+              }
+            }
+          }
+        }
+      }
+      footer {
+        text-align: center;
+        font-size: 13px;
+        background: $accentColor;
+        padding: 10px 20px;
+        box-sizing: border-box;
+
+        p {
+          font-size: inherit;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  h1 {
+    font-family: "Assistant", sans-serif;
+    color: rgb(104, 168, 214);
+
+    .accent {
+      color: #ffc107;
+    }
+  }
+
+  .cc-button {
+    border: solid 2px #f4c493;
+    border-radius: 0;
+    background: #192533;
+    color: #ffffff;
+    padding: 10px 30px;
+    width: 100%;
+
+    font-weight: 400;
+    font-size: 14px;
+
+    &:hover {
+      background: #f4c493;
+      color: #192533;
+    }
+  }
+}
+
+.EthApp-goback {
+  font-size: 16px;
+  width: 100px;
+  color: $accentColor;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  top: 25px;
+  left: 40px;
+}
+
+.EthApp-status {
+  display: flex;
+  position: fixed;
+  top: 0px;
+  right: 20px;
+  color: #fefefe;
+  align-items: center;
+  background: $accentColor;
+  padding: 5px 10px;
+
+  span.EthApp-status-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: red;
+    margin-left: 5px;
+
+    &.active {
+      background: green;
+    }
+  }
+}
+button.MuiButton-containedSecondary {
+  background: $buttonBg;
+  color: $buttonFont;
+  display: inline-flex;
+  margin: 0 10px 10px 0;
+  box-shadow: none;
+  border: solid 1px $buttonBorder;
+
+  &:hover {
+    background: $buttonBgHover;
+    color: $buttonFontHover;
+    border: solid 1px $buttonBorderHover;
+  }
+}
+
+section.Core-Functionality-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+
+  &.expanded {
+    flex: 1;
+    margin-top: 30px;
+  }
+
+  .inner-content {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .Roles-Functionality-wrapper {
+    max-width: 65vw;
+    margin-right: 30px;
+    flex: 1;
+    margin: 0 auto;
+
+    h3 {
+      position: fixed;
+      bottom: 250px;
+      right: -80px;
+      color: #eeeeee;
+      font-size: 140px;
+      font-weight: 800;
+      letter-spacing: -6px;
+      transform: rotate(90deg);
+    }
+  }
+}
+
+section.Error-notice {
+  width: 100%;
+  max-width: 50%;
+  margin: 0 auto;
+  height: 100%;
+  min-height: 50vh;
+  padding-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  .Error-title {
+    text-align: center;
+    font-weight: 300;
+    font-size: 40px;
+    margin-bottom: 0;
+  }
+  .Error-subtitle {
+    text-align: center;
+    font-weight: 300;
+    font-size: 15px;
+  }
+
+  .Error-wrapper {
+    background: $backgroundSecond;
+    padding: 20px;
+    font-size: 14px;
+  }
+}
+
+h3 {
+  color: $TextColor;
+  margin-bottom: 20px;
+}
