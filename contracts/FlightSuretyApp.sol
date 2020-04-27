@@ -39,6 +39,10 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
+    event AirlineRegistered(address airline);
+    event AirlineCandidateRegistered(address airline);
+    event FirstAirlineRegistered(address airline);
+
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -142,10 +146,30 @@ contract FlightSuretyApp {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+    function isActiveAirline(address airline)
+        public
+        view
+        requireIsOperational
+        returns (bool)
+    {
+        return FlightSuretyData.isAirlineActive(airline);
+    }
+
     /**
      * @dev Add an airline to the registration queue
      *
      */
+
+    function getNumberAirlines() external view returns (uint256) {
+        uint256 totalAirlines = FlightSuretyData.getAirlinesRegistered();
+        return totalAirlines;
+    }
+
+    function registerFirstAirline() external payable requireContractOwner {
+        FlightSuretyData.registerAirline(msg.sender);
+        FlightSuretyData.activateAirline(msg.sender);
+        emit FirstAirlineRegistered(msg.sender);
+    }
 
     function addAirlineCandidate(address airlineCandidate)
         public
@@ -155,11 +179,13 @@ contract FlightSuretyApp {
         requireAirlinesAutorization
     {
         require(
-            !FlightSuretyData.isRegisteredAirline(airlineCandidate),
+            FlightSuretyData.isRegisteredAirline(airlineCandidate) == false,
             "This Airline Candidate is an already registered Airline"
         );
+
         require(
-            !FlightSuretyData.isRegisteredAirlineCandidate(airlineCandidate),
+            FlightSuretyData.isRegisteredAirlineCandidate(airlineCandidate) ==
+                false,
             "This Airline is already registered as Airline Candidate"
         );
         FlightSuretyData.registerAirlineCandidate(msg.sender);
@@ -211,8 +237,10 @@ contract FlightSuretyApp {
 
         if (airlinesRegistered <= 4) {
             FlightSuretyData.registerAirline(airlineCandidate);
+            emit AirlineRegistered(airlineCandidate);
         } else {
             addAirlineCandidate(airlineCandidate);
+            emit AirlineCandidateRegistered(airlineCandidate);
         }
     }
 

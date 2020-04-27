@@ -38,6 +38,7 @@ class App extends React.Component {
     web3: null,
     account: null,
     appContract: {},
+    dataContract: {},
     userContext: "",
     txHistory: "",
     metamaskAddress: "",
@@ -78,11 +79,31 @@ class App extends React.Component {
     });
   };
 
+  authorizeCaller = async (
+    dataContract: any,
+    appContract: any,
+    account: string
+  ) => {
+    try {
+      const authorizeAppContract = await dataContract.methods
+        .authorizeCaller(appContract._address)
+        .call({
+          from: account,
+        });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   startApp = async (web3: any) => {
     try {
       // Get contract instance
       const networkId = await web3.eth.net.getId();
-      const AppContract = await fetch("/app").then((response) => {
+      const AppContract = await fetch("/appContract").then((response) => {
+        return response.json();
+      });
+
+      const DataContract = await fetch("/dataContract").then((response) => {
         return response.json();
       });
 
@@ -92,12 +113,24 @@ class App extends React.Component {
         deployedNetwork.address
       );
 
+      const dataContractInstance = new web3.eth.Contract(
+        DataContract.abi,
+        deployedNetwork.address
+      );
+
       const accounts = await web3.eth.getAccounts(); // Get account address
+
+      await this.authorizeCaller(
+        dataContractInstance,
+        appContractInstance,
+        accounts[0]
+      );
 
       this.setState({
         web3,
         accounts,
         appContract: appContractInstance,
+        dataContract: dataContractInstance,
         loading: false,
       });
     } catch (err) {
@@ -129,6 +162,7 @@ class App extends React.Component {
       web3,
       accounts,
       appContract,
+      dataContract,
       metamaskAddress,
       upc,
       userContext,
@@ -163,6 +197,7 @@ class App extends React.Component {
             {appContract && accounts && accounts[0] && (
               <OperationalStatus
                 appContract={appContract}
+                dataContract={dataContract}
                 owner={accounts[0]}
               />
             )}
@@ -222,6 +257,7 @@ class App extends React.Component {
                   web3={web3}
                   accounts={accounts}
                   appContract={appContract}
+                  dataContract={dataContract}
                   userContext={userContext}
                   txHistory={txHistory}
                   metamaskAddress={metamaskAddress}

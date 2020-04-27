@@ -16,7 +16,7 @@ contract FlightSuretyData {
     mapping(address => uint256) airlinesCandidates;
     mapping(address => bool) airlines;
     mapping(address => uint256) activeAirlines;
-    uint256 totalAirlines = 0;
+    uint256 public totalAirlines = 0;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -29,7 +29,7 @@ contract FlightSuretyData {
     constructor() public {
         contractOwner = msg.sender;
         airlines[msg.sender] = true;
-        activeAirlines[msg.sender] = 10;
+        activeAirlines[msg.sender] = 12;
     }
 
     event AirlineAdded(address airline, uint256 totalAirlines);
@@ -72,10 +72,9 @@ contract FlightSuretyData {
     /********************************************************************************************/
 
     function getAirlinesRegistered()
-        public
+        external
         view
         requireIsOperational
-        isCallerAuthorized
         returns (uint256)
     {
         return totalAirlines;
@@ -126,11 +125,7 @@ contract FlightSuretyData {
         authorizedContracts[dataContract] = 1;
     }
 
-    function deauthorizeCaller(address dataContract)
-        external
-        requireIsOperational
-        requireContractOwner
-    {
+    function deauthorizeCaller(address dataContract) external {
         delete authorizedContracts[dataContract];
     }
 

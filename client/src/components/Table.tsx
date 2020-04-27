@@ -23,7 +23,7 @@ const Table: React.FC<{
 
       <div className="Table-rows">
         {data.map((item: any, topIdx: number) => (
-          <div key={renderByIndex(item, 0)} className="Table-row-container">
+          <div key={topIdx} className="Table-row-container">
             {Object.keys(item).map((rowItem: any, index: number) => (
               <div key={index} className="Table-row">
                 {renderByIndex(item, index)}

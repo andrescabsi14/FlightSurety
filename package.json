@@ -12,7 +12,8 @@
     "test": "truffle test ./test/flightSurety.js",
     "test:server": "truffle test ./test/oracles.js",
     "dapp": "cd client && npm run start",
-    "server": "NODE_ENV=development node ./server.js"
+    "server": "NODE_ENV=development node ./server.js",
+    "ganache": "ganache-cli -m \"spirit supply whale amount human item harsh scare congress discover talent hamster\""
   },
   "author": "Andres Cabrera <andrescabsi@gmail.com.com>",
   "devDependencies": {

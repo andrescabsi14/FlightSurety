@@ -3,16 +3,23 @@ import React, { useState, useEffect } from "react";
 const OperationalStatus: React.FC<{
   owner: string;
   appContract: any;
-}> = ({ owner, appContract }) => {
-  const [opStatus, setOpStatus] = useState(false);
+  dataContract: any;
+}> = ({ owner, appContract, dataContract }) => {
+  const [dataOpStatus, setDataOpStatus] = useState(false);
+  const [appOpStatus, setAppOpStatus] = useState(false);
 
   const getOperationalStatus = async () => {
     if (!appContract) return;
     try {
-      const isOperational = await appContract.methods
+      const appIsOperational = await appContract.methods
         .isOperational()
         .call({ from: owner });
-      setOpStatus(isOperational);
+      setAppOpStatus(appIsOperational);
+
+      const dataIsOperational = await dataContract.methods
+        .isOperational()
+        .call({ from: owner });
+      setDataOpStatus(dataIsOperational);
     } catch (err) {
       console.error("Error isOperational");
     }
@@ -24,9 +31,14 @@ const OperationalStatus: React.FC<{
 
   return (
     <div className="EthApp-status">
-      status{" "}
+      App status{" "}
       <span
-        className={`EthApp-status-indicator ${opStatus ? "active" : ""}`}
+        className={`EthApp-status-indicator data ${
+          dataOpStatus ? "active" : ""
+        }`}
+      ></span>
+      <span
+        className={`EthApp-status-indicator app ${appOpStatus ? "active" : ""}`}
       ></span>
     </div>
   );
