@@ -5,7 +5,6 @@ pragma solidity ^0.4.25;
 // More info: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/november/smart-contract-insecurity-bad-arithmetic/
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./FlightSuretyData-interface.sol";
 
 
 /************************************************** */
@@ -13,15 +12,12 @@ import "./FlightSuretyData-interface.sol";
 /************************************************** */
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
-    bool operational = true;
+
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
-    FlightSuretyDataInterface public FlightSuretyData;
 
-    uint256 MIN_ACTIVATE_FUNDS = 10 ether;
-
-    // Flight status codes
+    // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
     uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
@@ -39,10 +35,6 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
-    event AirlineRegistered(address airline);
-    event AirlineCandidateRegistered(address airline);
-    event FirstAirlineRegistered(address airline);
-
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -57,7 +49,7 @@ contract FlightSuretyApp {
      */
     modifier requireIsOperational() {
         // Modify to call data contract's status
-        require(operational, "App Contract is currently not operational");
+        require(true, "Contract is currently not operational");
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -66,47 +58,6 @@ contract FlightSuretyApp {
      */
     modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
-        _;
-    }
-
-    modifier requireAirlinesAutorization() {
-        uint256 airlinesRegistered = FlightSuretyData.getAirlinesRegistered();
-        require(
-            airlinesRegistered > 4,
-            "Your registration application will be voted by our registered airlines."
-        );
-        _;
-    }
-
-    modifier requireMemberAirline() {
-        bool isMemberAirline = FlightSuretyData.isRegisteredAirline(msg.sender);
-        require(
-            isMemberAirline,
-            "Your need to be a member airline to perform this task"
-        );
-        _;
-    }
-
-    modifier requireMemberAirlineActive() {
-        bool isMemberAirlineActive = FlightSuretyData.isAirlineActive(
-            msg.sender
-        );
-        require(
-            isMemberAirlineActive,
-            "Your need to be an active member airline to perform this task"
-        );
-        _;
-    }
-
-    modifier requireActivateMinimumFunds() {
-        bool areFundsEnough = msg.value >= MIN_ACTIVATE_FUNDS;
-        require(areFundsEnough, "Insufficient funds.");
-        _;
-    }
-
-    modifier requireEOATx() {
-        bool isExternallyOwnedAccount = tx.origin == msg.sender;
-        require(isExternallyOwnedAccount, "Contracts not allowed.");
         _;
     }
 
@@ -126,133 +77,25 @@ contract FlightSuretyApp {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function getMinimumActivateFunds() public view returns (uint256) {
-        return MIN_ACTIVATE_FUNDS;
-    }
-
-    function setOperatingStatus(bool mode) external requireContractOwner {
-        require(
-            mode != operational,
-            "Operational status must be different from existing one"
-        );
-        operational = mode;
-    }
-
-    function isOperational() public view requireContractOwner returns (bool) {
-        return operational;
+    function isOperational() public pure returns (bool) {
+        return true; // Modify to call data contract's status
     }
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
-    function isActiveAirline(address airline)
-        public
-        view
-        requireIsOperational
-        returns (bool)
-    {
-        return FlightSuretyData.isAirlineActive(airline);
-    }
-
     /**
      * @dev Add an airline to the registration queue
      *
      */
 
-    function getNumberAirlines() external view returns (uint256) {
-        uint256 totalAirlines = FlightSuretyData.getAirlinesRegistered();
-        return totalAirlines;
-    }
-
-    function registerFirstAirline() external payable requireContractOwner {
-        FlightSuretyData.registerAirline(msg.sender);
-        FlightSuretyData.activateAirline(msg.sender);
-        emit FirstAirlineRegistered(msg.sender);
-    }
-
-    function addAirlineCandidate(address airlineCandidate)
-        public
-        requireIsOperational
-        requireMemberAirline
-        requireMemberAirlineActive
-        requireAirlinesAutorization
-    {
-        require(
-            FlightSuretyData.isRegisteredAirline(airlineCandidate) == false,
-            "This Airline Candidate is an already registered Airline"
-        );
-
-        require(
-            FlightSuretyData.isRegisteredAirlineCandidate(airlineCandidate) ==
-                false,
-            "This Airline is already registered as Airline Candidate"
-        );
-        FlightSuretyData.registerAirlineCandidate(msg.sender);
-    }
-
-    function voteAirlineCandidate(address airlineAddress)
-        public
-        requireIsOperational
-        requireMemberAirline
-        requireMemberAirlineActive
-        requireAirlinesAutorization
-    {
-        require(
-            !FlightSuretyData.isRegisteredAirlineCandidate(airlineAddress),
-            "This Airline is already registered as Airline Candidate"
-        );
-        require(
-            FlightSuretyData.isRegisteredAirlineCandidate(airlineAddress),
-            "This Airline is already registered as Airline Candidate"
-        );
-
-        FlightSuretyData.voteAirlineCandidate(airlineAddress);
-
-        uint256 candidateVotes = FlightSuretyData.getAirlineCandidateVotes(
-            airlineAddress
-        );
-        uint256 totalAirlines = FlightSuretyData.getAirlinesRegistered();
-
-        // Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
-        bool approvalReached = candidateVotes > totalAirlines.div(2);
-
-        if (approvalReached) {
-            FlightSuretyData.registerAirline(airlineAddress);
-        }
-    }
-
-    function registerAirline(address airlineCandidate)
+    function registerAirline()
         external
-        requireIsOperational
-        requireMemberAirlineActive
-        requireMemberAirline
+        pure
+        returns (bool success, uint256 votes)
     {
-        require(
-            !FlightSuretyData.isRegisteredAirline(airlineCandidate),
-            "This Airline is already registered"
-        );
-
-        uint256 airlinesRegistered = FlightSuretyData.getAirlinesRegistered();
-
-        if (airlinesRegistered <= 4) {
-            FlightSuretyData.registerAirline(airlineCandidate);
-            emit AirlineRegistered(airlineCandidate);
-        } else {
-            addAirlineCandidate(airlineCandidate);
-            emit AirlineCandidateRegistered(airlineCandidate);
-        }
-    }
-
-    function activateAirline(address airline)
-        public
-        payable
-        requireIsOperational
-        requireMemberAirline
-        requireEOATx
-        requireActivateMinimumFunds
-    {
-        FlightSuretyData.activateAirline(airline);
+        return (success, 0);
     }
 
     /**
