@@ -9,7 +9,8 @@ import "./ContextSelector.scss";
 const ContextSelector: React.FC<{
   web3: any;
   accounts: any;
-  supplyContract: any;
+  appContract: any;
+  dataContract: any;
   userContext: any;
   txHistory: any;
   metamaskAddress: any;
@@ -20,7 +21,8 @@ const ContextSelector: React.FC<{
 }> = ({
   web3,
   accounts,
-  supplyContract,
+  appContract,
+  dataContract,
   userContext,
   txHistory,
   metamaskAddress,
@@ -37,7 +39,7 @@ const ContextSelector: React.FC<{
             <TravelerDetails
               web3={web3}
               accounts={accounts}
-              supplyContract={supplyContract}
+              appContract={appContract.methods}
               userContext={userContext}
               txHistory={txHistory}
               metamaskAddress={metamaskAddress}
@@ -57,11 +59,11 @@ const ContextSelector: React.FC<{
             <AirlineDetails
               web3={web3}
               accounts={accounts}
-              supplyContract={supplyContract}
+              appContract={appContract.methods}
+              dataContract={dataContract.methods}
               userContext={userContext}
               txHistory={txHistory}
               metamaskAddress={metamaskAddress}
-              upc={upc}
               setError={setError}
               setNotification={setNotification}
             />

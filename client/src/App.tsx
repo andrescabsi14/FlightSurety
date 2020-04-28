@@ -9,6 +9,7 @@ import getWeb3 from "./getWeb3";
 
 import { AppContext } from "./App.types";
 import "./App.scss";
+import OperationalStatus from "./components/OperationalStatus";
 
 const TARGET_URL = Config.localhost.url;
 
@@ -36,47 +37,16 @@ class App extends React.Component {
   state = {
     web3: null,
     account: null,
-    supplyContract: {},
+    appContract: {},
+    dataContract: {},
     userContext: "",
     txHistory: "",
     metamaskAddress: "",
     upc: "1",
     loading: true,
     notification: false,
-    accounts: null,
+    accounts: [],
     error: null,
-  };
-
-  fetchItemBufferOne = async () => {
-    // const { upc, supplyContract } = this.state;
-    // const targetMethods = supplyContract && supplyContract.methods;
-    // if (!upc) return;
-    // try {
-    //   const result = await targetMethods.fetchItemBufferOne(upc).call();
-    //   console.log(result);
-    //   this.setState({
-    //     txHistory: result,
-    //   });
-    // } catch (err) {
-    //   console.error("Error fetchItemBufferOne");
-    // }
-  };
-
-  fetchItemBufferTwo = async () => {
-    const { upc, supplyContract } = this.state;
-    if (!upc) return;
-
-    // try {
-    //   const result = await supplyContract.methods
-    //     .fetchItemBufferTwo(upc)
-    //     .call();
-    //   console.log(result);
-    //   this.setState({
-    //     txHistory: result,
-    //   });
-    // } catch (err) {
-    //   console.error("Error fetchItemBufferTwo");
-    // }
   };
 
   goBack = () => {
@@ -109,11 +79,31 @@ class App extends React.Component {
     });
   };
 
+  authorizeCaller = async (
+    dataContract: any,
+    appContract: any,
+    account: string
+  ) => {
+    try {
+      const authorizeAppContract = await dataContract.methods
+        .authorizeCaller(appContract._address)
+        .call({
+          from: account,
+        });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   startApp = async (web3: any) => {
     try {
       // Get contract instance
       const networkId = await web3.eth.net.getId();
-      const AppContract = await fetch("/app").then((response) => {
+      const AppContract = await fetch("/appContract").then((response) => {
+        return response.json();
+      });
+
+      const DataContract = await fetch("/dataContract").then((response) => {
         return response.json();
       });
 
@@ -123,21 +113,26 @@ class App extends React.Component {
         deployedNetwork.address
       );
 
+      const dataContractInstance = new web3.eth.Contract(
+        DataContract.abi,
+        deployedNetwork.address
+      );
+
       const accounts = await web3.eth.getAccounts(); // Get account address
 
-      this.setState(
-        {
-          web3,
-          accounts,
-          appContract: appContractInstance,
-          loading: false,
-        },
-        () => {
-          // Fetch item
-          this.fetchItemBufferOne();
-          this.fetchItemBufferTwo();
-        }
+      await this.authorizeCaller(
+        dataContractInstance,
+        appContractInstance,
+        accounts[0]
       );
+
+      this.setState({
+        web3,
+        accounts,
+        appContract: appContractInstance,
+        dataContract: dataContractInstance,
+        loading: false,
+      });
     } catch (err) {
       this.setError(err);
       console.error("Error starting app");
@@ -166,7 +161,8 @@ class App extends React.Component {
     const {
       web3,
       accounts,
-      supplyContract,
+      appContract,
+      dataContract,
       metamaskAddress,
       upc,
       userContext,
@@ -198,14 +194,13 @@ class App extends React.Component {
               </div>
             )}
 
-            <div className="EthApp-status">
-              status{" "}
-              <span
-                className={`EthApp-status-indicator ${
-                  appIsActive ? "active" : ""
-                }`}
-              ></span>
-            </div>
+            {appContract && accounts && accounts[0] && (
+              <OperationalStatus
+                appContract={appContract}
+                dataContract={dataContract}
+                owner={accounts[0]}
+              />
+            )}
 
             {!userContext && (
               <div className="Context-selector">
@@ -257,11 +252,12 @@ class App extends React.Component {
             }
           >
             <div className="Roles-Functionality-wrapper">
-              {userContext && !error && (
+              {userContext && !error && appContract && (
                 <ContextSelector
                   web3={web3}
                   accounts={accounts}
-                  supplyContract={supplyContract}
+                  appContract={appContract}
+                  dataContract={dataContract}
                   userContext={userContext}
                   txHistory={txHistory}
                   metamaskAddress={metamaskAddress}

@@ -127,6 +127,7 @@
     color: $formColor;
     justify-content: space-between;
     align-items: flex-start;
+    width: 500px;
 
     &.inline {
       flex-direction: row;
@@ -145,6 +146,11 @@
 
   &-Input {
     margin-bottom: 10px;
+    width: 100%;
+
+    > div {
+      width: 100%;
+    }
   }
 
   &-loading {
